@@ -26,6 +26,7 @@ add_executable(chat_server
 target_include_directories(chat_server PRIVATE 
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${UWS_DIR}/src
+  ${UWS_DIR}/uSockets/src
 )
 
 target_link_libraries(chat_server PRIVATE
