@@ -35,6 +35,7 @@ target_link_libraries(chat_server PRIVATE
   OpenSSL::SSL
   OpenSSL::Crypto
   ZLIB::ZLIB
+  ${UWS_DIR}/uSockets/libusockets.a
 )
 
 # Copy static assets
