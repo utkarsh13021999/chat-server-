@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>C++ uWS Chat Test</title>
+<style>
+body { font-family: system-ui, Arial, sans-serif; margin: 20px; }
+#log { height: 260px; overflow: auto; border: 1px solid #ccc; padding: 8px; margin-top: 8px; }
+input, button { padding: 6px; }
+</style>
+</head>
+<body>
+<h3>Chat Test</h3>
+<label>Me: <input id="me" placeholder="alice"/></label>
+<button id="connect">Connect</button>
+<br/>
+<label>To: <input id="to" placeholder="bob"/></label>
+<br/>
+<input id="text" placeholder="Type message..." style="width:70%"/>
+<button id="send">Send</button>
+<button id="loadHistory">Load History</button>
+<div id="log"></div>
+
+<script>
+let ws;
+const log = (m) => {
+const div = document.getElementById('log');
+div.innerText += m + "\n";
+div.scrollTop = div.scrollHeight;
+};
+document.getElementById('connect').onclick = () => {
+const me = document.getElementById('me').value || 'alice';
+ws = new WebSocket(ws://localhost:9001/?user=);
+ws.onopen = () => log('Connected as ' + me);
+ws.onmessage = (ev) => {
+try {
+const j = JSON.parse(ev.data);
+if (j.type === 'msg') {
+log(${j.from} -> : );
+} else if (j.type === 'presence') {
+log(Presence:  is );
+} else if (j.type === 'ready') {
+log('Ready as ' + j.user);
+} else if (j.type === 'history') {
+log(History with :);
+j.messages.forEach(m => log(${m.from} ->  []: ));
+}
+} catch (e) { log(ev.data); }
+};
+ws.onclose = () => log('Disconnected');
+};
+document.getElementById('send').onclick = () => {
+if (!ws) return;
+const to = document.getElementById('to').value || 'bob';
+const text = document.getElementById('text').value;
+ws.send(JSON.stringify({type:'msg', to, text}));
+document.getElementById('text').value = '';
+};
+document.getElementById('loadHistory').onclick = () => {
+if (!ws) return;
+const withId = document.getElementById('to').value || 'bob';
+ws.send(JSON.stringify({type:'history', with: withId}));
+};
+</script>
+</body>
+</html>
