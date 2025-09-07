@@ -18,7 +18,7 @@ if(NOT EXISTS ${UWS_DIR})
     message(FATAL_ERROR "uWS directory not found. Run: git clone https://github.com/uNetworking/uWebSockets.git uws")
 endif()
 
-# Build uSockets library with the files that actually exist
+# Build uSockets library with all necessary source files including SSL
 add_library(usockets STATIC
     ${UWS_DIR}/uSockets/src/context.c
     ${UWS_DIR}/uSockets/src/socket.c
@@ -28,6 +28,7 @@ add_library(usockets STATIC
     ${UWS_DIR}/uSockets/src/eventing/libuv.c
     ${UWS_DIR}/uSockets/src/eventing/gcd.c
     ${UWS_DIR}/uSockets/src/crypto/openssl.c
+    ${UWS_DIR}/uSockets/src/crypto/sni_tree.cpp
 )
 
 target_include_directories(usockets PUBLIC ${UWS_DIR}/uSockets/src)
