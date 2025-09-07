@@ -6,17 +6,20 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-  set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
+# Add uWS as submodule
+set(UWS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/uws)
+if(NOT EXISTS ${UWS_DIR})
+    message(FATAL_ERROR "uWS submodule not found. Run: git submodule update --init --recursive")
 endif()
 
-if(CMAKE_BUILD_TYPE STREQUAL "")
-  set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
-endif()
-
-find_package(uwebsockets CONFIG REQUIRED)
+# Find packages
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(Threads REQUIRED)
+find_package(OpenSSL REQUIRED)
+find_package(ZLIB REQUIRED)
+
+# Add uWS library
+add_subdirectory(${UWS_DIR} uws)
 
 add_executable(chat_server
   src/main.cpp
@@ -26,11 +29,15 @@ add_executable(chat_server
 target_include_directories(chat_server PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 target_link_libraries(chat_server PRIVATE
-  uwebsockets::uwebsockets
+  uws
   nlohmann_json::nlohmann_json
   Threads::Threads
+  OpenSSL::SSL
+  OpenSSL::Crypto
+  ZLIB::ZLIB
 )
 
+# Copy static assets
 add_custom_command(TARGET chat_server POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:chat_server>/static
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/static $<TARGET_FILE_DIR:chat_server>/static
