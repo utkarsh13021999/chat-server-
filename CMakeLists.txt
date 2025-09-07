@@ -18,7 +18,7 @@ if(NOT EXISTS ${UWS_DIR})
     message(FATAL_ERROR "uWS directory not found. Run: git clone https://github.com/uNetworking/uWebSockets.git uws")
 endif()
 
-# Build uSockets library with all necessary source files including SSL
+# Build uSockets library with all necessary source files including internal
 add_library(usockets STATIC
     ${UWS_DIR}/uSockets/src/context.c
     ${UWS_DIR}/uSockets/src/socket.c
@@ -29,9 +29,15 @@ add_library(usockets STATIC
     ${UWS_DIR}/uSockets/src/eventing/gcd.c
     ${UWS_DIR}/uSockets/src/crypto/openssl.c
     ${UWS_DIR}/uSockets/src/crypto/sni_tree.cpp
+    ${UWS_DIR}/uSockets/src/quic.c
+    ${UWS_DIR}/uSockets/src/udp.c
+    ${UWS_DIR}/uSockets/src/internal/ssl.c
 )
 
-target_include_directories(usockets PUBLIC ${UWS_DIR}/uSockets/src)
+target_include_directories(usockets PUBLIC 
+    ${UWS_DIR}/uSockets/src
+    ${UWS_DIR}/uSockets/src/internal
+)
 
 add_executable(chat_server
   src/main.cpp
@@ -42,6 +48,7 @@ target_include_directories(chat_server PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${UWS_DIR}/src
   ${UWS_DIR}/uSockets/src
+  ${UWS_DIR}/uSockets/src/internal
 )
 
 target_link_libraries(chat_server PRIVATE
